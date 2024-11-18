@@ -11,7 +11,7 @@ Determining top-performing cities and comparing sales performance across countri
 - **Customer Segmentation :**
 Evaluating sales across customer types (e.g., Hospitals, Pharmacies) and sectors (e.g., Government vs. Private buyers).
 
- **Product Analysis: **
+- **Product Analysis:**
 Analyzing top-selling products within drug classes and pricing trends by product class.
 
 - **Sales Representative Performance:**
