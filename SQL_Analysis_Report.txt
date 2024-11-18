@@ -1,0 +1,176 @@
+
+SQL Analysis Report
+
+1. Sales Performance Analysis
+
+1.1 Total Sales by Product
+-Objective: Identify the top-selling products.
+
+SELECT P.ProductName, SUM(Sales) AS total_sales
+FROM fact_sales S
+JOIN dim_product P 
+    ON S.ProductName = P.ProductName
+GROUP BY P.ProductName
+ORDER BY total_sales DESC;
+
+
+1.2 Monthly Sales Trends
+Objective: Analyze how sales vary month by month within a specific year.
+
+SELECT 
+    year,
+    month, 
+    SUM(sales) AS total_sales
+FROM fact_sales
+GROUP BY year, month
+ORDER BY 
+    year,
+    CASE month
+        WHEN 'January' THEN 1
+        WHEN 'February' THEN 2
+        WHEN 'March' THEN 3
+        WHEN 'April' THEN 4
+        WHEN 'May' THEN 5
+        WHEN 'June' THEN 6
+        WHEN 'July' THEN 7
+        WHEN 'August' THEN 8
+        WHEN 'September' THEN 9
+        WHEN 'October' THEN 10
+        WHEN 'November' THEN 11
+        WHEN 'December' THEN 12
+    END;
+
+
+2. Sales by Location
+
+2.1 Top Cities by Sales Volume
+Objective: Identify cities with the highest total sales.
+
+SELECT 
+    c.City, 
+    SUM(f.Sales) AS Total_Sales
+FROM fact_sales f
+JOIN dim_customer c
+    ON f."CustomerName" = c."CustomerName"
+GROUP BY c.City
+ORDER BY Total_Sales DESC
+LIMIT 10;
+
+
+2.2 Sales Performance by Country
+Objective: Compare sales across different countries.
+
+SELECT 
+    c.Country, 
+    SUM(f.Sales) AS Total_Sales
+FROM fact_sales f
+JOIN dim_customer c
+    ON f."CustomerName" = c."CustomerName"
+GROUP BY c.Country
+ORDER BY Total_Sales DESC;
+
+
+3. Customer Segmentation
+3.1 Sales by Customer Type
+Objective: Calculate total sales by customer type (e.g., Hospitals, Pharmacies).
+
+(*Query content to be completed based on additional details provided*)
+
+
+4. Product Analysis
+
+4.1 Top-Selling Products by Drug Class
+Objective: Identify top products within each drug class.
+
+SELECT
+    p."ProductClass",
+    p."ProductName",
+    SUM(f.Sales) AS Total_Sales
+FROM fact_sales f
+JOIN dim_product p
+    ON f."ProductName" = p."ProductName"
+GROUP BY p."ProductClass", p."ProductName"
+ORDER BY p."ProductClass", Total_Sales DESC;
+
+
+4.2 Average Price by Product Class
+Objective: Analyze average pricing for each class of drugs.
+
+SELECT 
+    p."ProductClass",
+    AVG(f.Price) AS Average_Price
+FROM fact_sales f
+JOIN dim_product p
+    ON f."ProductName" = p."ProductName"
+GROUP BY p."ProductClass"
+ORDER BY p."ProductClass";
+
+
+5. Sales Representative Performance
+
+5.1 Top-Performing Sales Representatives
+Objective: Identify top sales representatives based on total sales.
+
+SELECT 
+    SalesRep, 
+    SUM(Sales) AS TotalSales
+FROM fact_sales
+GROUP BY SalesRep
+ORDER BY TotalSales DESC
+LIMIT 10;
+
+
+5.2 Sales Performance by Team
+Objective: Analyze performance across sales teams.
+
+SELECT 
+    d.SalesTeam, 
+    SUM(f.Sales) AS TotalSales
+FROM fact_sales f
+JOIN dim_sales_team d 
+    ON f.SalesRep = d.SalesRep
+GROUP BY d.SalesTeam
+ORDER BY TotalSales DESC;
+
+
+6. Time Series Analysis
+
+6.1 Year-over-Year Growth
+Objective: Measure growth trends over the years.
+
+WITH YearlySales AS (
+    SELECT 
+        Year, 
+        SUM(Sales) AS TotalSales
+    FROM fact_sales
+    GROUP BY Year
+),
+YearlyGrowth AS (
+    SELECT 
+        Year, 
+        TotalSales, 
+        LAG(TotalSales) OVER (ORDER BY Year) AS PreviousYearSales,
+        CASE 
+            WHEN LAG(TotalSales) OVER (ORDER BY Year) IS NOT NULL THEN 
+                ((TotalSales - LAG(TotalSales) OVER (ORDER BY Year)) * 100.0) / LAG(TotalSales) OVER (ORDER BY Year)
+            ELSE NULL
+        END AS YoYGrowth
+    FROM YearlySales
+)
+SELECT 
+    Year, 
+    TotalSales, 
+    YoYGrowth
+FROM YearlyGrowth
+ORDER BY Year;
+
+
+6.2 Seasonal Sales Patterns
+Objective: Identify months with consistently high sales volumes.
+
+SELECT 
+    Month, 
+    AVG(Sales) AS AverageMonthlySales
+FROM fact_sales
+GROUP BY Month
+ORDER BY AverageMonthlySales DESC;
